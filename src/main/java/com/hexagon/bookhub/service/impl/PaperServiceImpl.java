@@ -1,7 +1,9 @@
 package com.hexagon.bookhub.service.impl;
 
+import com.hexagon.bookhub.entity.Admin;
 import com.hexagon.bookhub.entity.GuestUser;
 import com.hexagon.bookhub.entity.Paper;
+import com.hexagon.bookhub.repository.AdminRepository;
 import com.hexagon.bookhub.repository.GuestUserRepository;
 import com.hexagon.bookhub.repository.PaperRepository;
 import com.hexagon.bookhub.service.PaperSevice;
@@ -24,7 +26,7 @@ public class PaperServiceImpl implements PaperSevice {
     @Autowired
     private PaperRepository paperRepository;
     @Autowired
-    private GuestUserRepository guestUserRepository;
+    private AdminRepository adminRepository;
     @Autowired
     private AutheticationUtil autheticationUtil;
     @Override
@@ -34,12 +36,12 @@ public class PaperServiceImpl implements PaperSevice {
             String userEmail = autheticationUtil.getAuthenticatedEmail(request);
             if(!userEmail.isEmpty()){
                 log.info("User Email Exist " + userEmail);
-                Optional<GuestUser> user = guestUserRepository.findByEmail(userEmail);
+                Optional<Admin> user = adminRepository.findByEmail(userEmail);
                 log.info("User : " + user.get().getId());
                 if (user.isPresent()) {
                     Paper _paper = paperRepository.save(paper);
                     log.info("Paper saved " + _paper.getId());
-                    GuestUser _updatedUser = user.get();
+                    Admin _updatedUser = user.get();
                     log.info("Get User for updating the paper list");
                     List<Paper> _paperList = new ArrayList<Paper>();
                     log.info("Get User for  paper list size :" + _updatedUser.getPaperList().size());
@@ -54,7 +56,7 @@ public class PaperServiceImpl implements PaperSevice {
 
                     _updatedUser.setPaperList(_paperList);
                     log.info("Added the new Paper to the User Paper List");
-                    guestUserRepository.save(_updatedUser);
+                    adminRepository.save(_updatedUser);
                     log.info("Updated the user with new Paper List");
                     return new ResponseEntity<>(_paper, HttpStatus.OK);
                 } else {
@@ -70,4 +72,17 @@ public class PaperServiceImpl implements PaperSevice {
         }
     }
 
+    @Override
+    public ResponseEntity<List<Paper>> getPapers(){
+        try{
+           List<Paper> paperList =  paperRepository.findAll();
+            if(paperList.size() > 0){
+                return new ResponseEntity<>(paperList, HttpStatus.OK);
+            }else {
+                return new ResponseEntity<>(null,HttpStatus.OK);
+            }
+        }catch (Exception e){
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

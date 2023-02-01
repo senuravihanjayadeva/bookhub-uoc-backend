@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -22,11 +23,8 @@ public class PaperController {
     @Autowired
     private PaperSevice paperSevice;
 
-    @Autowired
-    private PaperRepository paperRepository;
-
     @PostMapping
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Paper> savePaper(HttpServletRequest request,@RequestBody PaperRequest paperRequest){
         log.info("Inside the savePaper in Paper Controller");
         Paper paper = new Paper(paperRequest.getSubject(), paperRequest.getGrade(), paperRequest.getSchool(), paperRequest.getTerm(), paperRequest.getPaperUrl());
@@ -43,4 +41,9 @@ public class PaperController {
         return paperSevice.savePaper(request,paper);
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<List<Paper>> getPapers(){
+        log.info("Inside the savePaper in Paper Controller");
+        return paperSevice.getPapers();
+    }
 }
