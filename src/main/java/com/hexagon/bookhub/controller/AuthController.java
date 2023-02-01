@@ -1,6 +1,10 @@
 package com.hexagon.bookhub.controller;
 
-import com.hexagon.bookhub.entity.*;
+import com.hexagon.bookhub.entity.Admin;
+import com.hexagon.bookhub.entity.ERole;
+import com.hexagon.bookhub.entity.GuestUser;
+import com.hexagon.bookhub.entity.Role;
+import com.hexagon.bookhub.payload.request.GuestUserSignupRequest;
 import com.hexagon.bookhub.payload.request.LoginRequest;
 import com.hexagon.bookhub.payload.request.SignupRequest;
 import com.hexagon.bookhub.payload.response.JwtResponse;
@@ -54,7 +58,7 @@ public class AuthController {
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
 
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateJwtToken(authentication);
@@ -72,25 +76,20 @@ public class AuthController {
     }
 
     @PostMapping("/guestuser/signup")
-    public ResponseEntity<?> registerUser(@RequestBody SignupRequest signUpRequest) {
-        if (guestUserRepository.existsByUsername(signUpRequest.getUsername())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse("Error: Username is already taken!"));
-        }
+    public ResponseEntity<?> registerUser(@RequestBody GuestUserSignupRequest guestUserSignupRequest) {
 
-        if (guestUserRepository.existsByEmail(signUpRequest.getEmail())) {
+        if (guestUserRepository.existsByEmail(guestUserSignupRequest.getEmail())) {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Email is already in use!"));
         }
 
         // Create new user's account
-        GuestUser user = new GuestUser(signUpRequest.getUsername(),
-                signUpRequest.getEmail(),
-                encoder.encode(signUpRequest.getPassword()));
+        GuestUser user = new GuestUser(guestUserSignupRequest.getUsername(),
+                guestUserSignupRequest.getEmail(),
+                encoder.encode(guestUserSignupRequest.getPassword()), guestUserSignupRequest.getFullName(), guestUserSignupRequest.getContactNumber(), guestUserSignupRequest.getAddress(), guestUserSignupRequest.isStudent(), guestUserSignupRequest.getCompanyOrUniversity(), guestUserSignupRequest.isPrivacyEnable());
 
-        Set<String> strRoles = signUpRequest.getRoles();
+        Set<String> strRoles = guestUserSignupRequest.getRoles();
         Set<Role> roles = new HashSet<>();
 
         if (strRoles == null) {
@@ -128,11 +127,6 @@ public class AuthController {
 
     @PostMapping("/admin/signup")
     public ResponseEntity<?> registerAdmin(@RequestBody SignupRequest signUpRequest) {
-        if (adminRepository.existsByUsername(signUpRequest.getUsername())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse("Error: Username is already taken!"));
-        }
 
         if (adminRepository.existsByEmail(signUpRequest.getEmail())) {
             return ResponseEntity

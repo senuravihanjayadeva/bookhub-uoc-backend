@@ -1,9 +1,15 @@
-package com.hexagon.bookhub.entity;
+package com.hexagon.bookhub.payload.request;
 
-import org.springframework.data.mongodb.core.mapping.Document;
+import java.util.Set;
 
-@Document(collection = "guest_users")
-public class GuestUser extends User{
+public class GuestUserSignupRequest {
+    private String username;
+
+    private String email;
+
+    private Set<String> roles;
+
+    private String password;
 
     private String fullName;
     private String contactNumber;
@@ -15,26 +21,36 @@ public class GuestUser extends User{
 
     private boolean isPrivacyEnable;
 
-    public GuestUser() {
+    public String getUsername() {
+        return username;
     }
 
-    public GuestUser(String fullName, String contactNumber, String address, boolean isStudent, String companyOrUniversity, boolean isPrivacyEnable) {
-        this.fullName = fullName;
-        this.contactNumber = contactNumber;
-        this.address = address;
-        this.isStudent = isStudent;
-        this.companyOrUniversity = companyOrUniversity;
-        this.isPrivacyEnable = isPrivacyEnable;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public GuestUser(String username, String email, String password, String fullName, String contactNumber, String address, boolean isStudent, String companyOrUniversity, boolean isPrivacyEnable) {
-        super(username, email, password);
-        this.fullName = fullName;
-        this.contactNumber = contactNumber;
-        this.address = address;
-        this.isStudent = isStudent;
-        this.companyOrUniversity = companyOrUniversity;
-        this.isPrivacyEnable = isPrivacyEnable;
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Set<String> getRoles() {
+        return this.roles;
+    }
+
+    public void setRole(Set<String> roles) {
+        this.roles = roles;
     }
 
     public String getFullName() {

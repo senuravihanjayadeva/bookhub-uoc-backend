@@ -25,14 +25,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     @Transactional
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<GuestUser> guest = guestUserRepository.findByUsername(username);
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Optional<GuestUser> guest = guestUserRepository.findByEmail(email);
         User user = new User();
         if(guest.isPresent()){
             user = guest.get();
         }else{
-            Optional<Admin> admin = Optional.ofNullable(adminRepository.findByUsername(username)
-                    .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username)));
+            Optional<Admin> admin = Optional.ofNullable(adminRepository.findByEmail(email)
+                    .orElseThrow(() -> new UsernameNotFoundException("User Not Found with email: " + email)));
             user = admin.get();
         }
 
