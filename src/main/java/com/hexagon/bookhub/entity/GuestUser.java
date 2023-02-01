@@ -8,13 +8,9 @@ public class GuestUser extends User{
     private String fullName;
     private String contactNumber;
     private String address;
-
     private boolean isStudent;
-
     private String  companyOrUniversity;
-
     private boolean isPrivacyEnable;
-
     public GuestUser() {
     }
 
@@ -27,8 +23,8 @@ public class GuestUser extends User{
         this.isPrivacyEnable = isPrivacyEnable;
     }
 
-    public GuestUser(String username, String email, String password, String fullName, String contactNumber, String address, boolean isStudent, String companyOrUniversity, boolean isPrivacyEnable) {
-        super(username, email, password);
+    public GuestUser(String email, String password, String fullName, String contactNumber, String address, boolean isStudent, String companyOrUniversity, boolean isPrivacyEnable) {
+        super(email, password);
         this.fullName = fullName;
         this.contactNumber = contactNumber;
         this.address = address;

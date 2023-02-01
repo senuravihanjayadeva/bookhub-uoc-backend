@@ -5,7 +5,6 @@ import com.hexagon.bookhub.entity.GuestUser;
 import com.hexagon.bookhub.entity.User;
 import com.hexagon.bookhub.repository.AdminRepository;
 import com.hexagon.bookhub.repository.GuestUserRepository;
-import com.hexagon.bookhub.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

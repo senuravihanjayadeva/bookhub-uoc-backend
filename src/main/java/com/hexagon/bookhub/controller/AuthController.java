@@ -12,7 +12,6 @@ import com.hexagon.bookhub.payload.response.MessageResponse;
 import com.hexagon.bookhub.repository.AdminRepository;
 import com.hexagon.bookhub.repository.GuestUserRepository;
 import com.hexagon.bookhub.repository.RoleRepository;
-import com.hexagon.bookhub.repository.UserRepository;
 import com.hexagon.bookhub.security.jwt.JwtUtils;
 import com.hexagon.bookhub.security.services.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +34,6 @@ import java.util.stream.Collectors;
 public class AuthController {
     @Autowired
     AuthenticationManager authenticationManager;
-
-    @Autowired
-    UserRepository userRepository;
 
     @Autowired
     AdminRepository adminRepository;
@@ -70,13 +66,17 @@ public class AuthController {
 
         return ResponseEntity.ok(new JwtResponse(jwt,
                 userDetails.getId(),
-                userDetails.getUsername(),
                 userDetails.getEmail(),
                 roles));
     }
 
     @PostMapping("/guestuser/signup")
     public ResponseEntity<?> registerUser(@RequestBody GuestUserSignupRequest guestUserSignupRequest) {
+        if (adminRepository.existsByEmail(guestUserSignupRequest.getEmail())) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Email is already in use!"));
+        }
 
         if (guestUserRepository.existsByEmail(guestUserSignupRequest.getEmail())) {
             return ResponseEntity
@@ -85,7 +85,7 @@ public class AuthController {
         }
 
         // Create new user's account
-        GuestUser user = new GuestUser(guestUserSignupRequest.getUsername(),
+        GuestUser user = new GuestUser(
                 guestUserSignupRequest.getEmail(),
                 encoder.encode(guestUserSignupRequest.getPassword()), guestUserSignupRequest.getFullName(), guestUserSignupRequest.getContactNumber(), guestUserSignupRequest.getAddress(), guestUserSignupRequest.isStudent(), guestUserSignupRequest.getCompanyOrUniversity(), guestUserSignupRequest.isPrivacyEnable());
 
@@ -128,6 +128,12 @@ public class AuthController {
     @PostMapping("/admin/signup")
     public ResponseEntity<?> registerAdmin(@RequestBody SignupRequest signUpRequest) {
 
+        if (guestUserRepository.existsByEmail(signUpRequest.getEmail())) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Email is already in use!"));
+        }
+
         if (adminRepository.existsByEmail(signUpRequest.getEmail())) {
             return ResponseEntity
                     .badRequest()
@@ -135,7 +141,7 @@ public class AuthController {
         }
 
         // Create new user's account
-        Admin user = new Admin(signUpRequest.getUsername(),
+        Admin user = new Admin(
                 signUpRequest.getEmail(),
                 encoder.encode(signUpRequest.getPassword()));
 
