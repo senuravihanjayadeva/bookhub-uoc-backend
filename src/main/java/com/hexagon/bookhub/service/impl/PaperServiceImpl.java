@@ -30,7 +30,7 @@ public class PaperServiceImpl implements PaperSevice {
     @Autowired
     private AutheticationUtil autheticationUtil;
     @Override
-    public ResponseEntity<Paper> savePaper(HttpServletRequest request,Paper paper){
+    public ResponseEntity<?> savePaper(HttpServletRequest request,Paper paper){
         try {
             log.info("Inside the savePaper in Paper Service");
             String userEmail = autheticationUtil.getAuthenticatedEmail(request);
@@ -58,7 +58,7 @@ public class PaperServiceImpl implements PaperSevice {
                     log.info("Added the new Paper to the User Paper List");
                     adminRepository.save(_updatedUser);
                     log.info("Updated the user with new Paper List");
-                    return new ResponseEntity<>(_paper, HttpStatus.OK);
+                    return new ResponseEntity<Paper>(_paper, HttpStatus.OK);
                 } else {
                     log.info("No User for the given mail");
                     return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -73,13 +73,34 @@ public class PaperServiceImpl implements PaperSevice {
     }
 
     @Override
-    public ResponseEntity<List<Paper>> getPapers(){
+    public ResponseEntity<?> getPapers(){
         try{
            List<Paper> paperList =  paperRepository.findAll();
             if(paperList.size() > 0){
-                return new ResponseEntity<>(paperList, HttpStatus.OK);
+                return new ResponseEntity<List<Paper>>(paperList, HttpStatus.OK);
             }else {
-                return new ResponseEntity<>(null,HttpStatus.OK);
+                return new ResponseEntity<>(null,HttpStatus.NO_CONTENT);
+            }
+        }catch (Exception e){
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public ResponseEntity<?> editPaper(String id, Paper paper){
+        try {
+            Optional<Paper> _paper = paperRepository.findById(id);
+            if (_paper.isPresent()) {
+                Paper updatePaperRepo = _paper.get();
+                updatePaperRepo.setGrade(paper.getGrade());
+                updatePaperRepo.setPaperUrl(paper.getPaperUrl());
+                updatePaperRepo.setSchool(paper.getSchool());
+                updatePaperRepo.setSubject(paper.getSubject());
+                updatePaperRepo.setTerm(paper.getTerm());
+                updatePaperRepo.setPaperType(paper.getPaperType());
+                return new ResponseEntity<>(paperRepository.save(updatePaperRepo), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Paper Update Error", HttpStatus.NOT_FOUND);
             }
         }catch (Exception e){
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
