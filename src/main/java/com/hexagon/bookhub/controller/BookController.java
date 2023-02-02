@@ -73,5 +73,11 @@ public class BookController {
         log.info("Inside the getAllDigitalBooks in Book Controller");
         return bookService.getAllDigitalBooks();
     }
+    @PutMapping("/digitalbook/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> editDigitalBook(@PathVariable String id, @RequestBody DigitalBook digitalBook){
+        log.info("Inside the editDigitalBook in Book Controller");
+        return bookService.editDigitalBook(id,digitalBook);
+    }
 
 }
