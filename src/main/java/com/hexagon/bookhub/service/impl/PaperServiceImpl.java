@@ -3,6 +3,7 @@ package com.hexagon.bookhub.service.impl;
 import com.hexagon.bookhub.entity.Admin;
 import com.hexagon.bookhub.entity.GuestUser;
 import com.hexagon.bookhub.entity.Paper;
+import com.hexagon.bookhub.entity.PhysicalBook;
 import com.hexagon.bookhub.repository.AdminRepository;
 import com.hexagon.bookhub.repository.GuestUserRepository;
 import com.hexagon.bookhub.repository.PaperRepository;
@@ -18,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -75,9 +77,14 @@ public class PaperServiceImpl implements PaperSevice {
     @Override
     public ResponseEntity<?> getPapers(){
         try{
+            log.info("Inside the getPapers in Paper Service");
            List<Paper> paperList =  paperRepository.findAll();
             if(paperList.size() > 0){
-                return new ResponseEntity<List<Paper>>(paperList, HttpStatus.OK);
+                List<Paper> filterePaperList = paperList.stream()
+                        .filter(paper -> paper.isDeleted() == false)
+                        .collect(Collectors.toList());
+                log.info("Filtered the non deleted papers");
+                return new ResponseEntity<List<Paper>>(filterePaperList, HttpStatus.OK);
             }else {
                 return new ResponseEntity<>(null,HttpStatus.NO_CONTENT);
             }
@@ -89,6 +96,7 @@ public class PaperServiceImpl implements PaperSevice {
     @Override
     public ResponseEntity<?> editPaper(String id, Paper paper){
         try {
+            log.info("Inside the editPaper in Paper Service");
             Optional<Paper> _paper = paperRepository.findById(id);
             if (_paper.isPresent()) {
                 Paper updatePaperRepo = _paper.get();

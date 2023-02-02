@@ -37,7 +37,7 @@ public class GuestUserImpl implements GuestUserService {
                         guestUser.get().isStudent(),
                         guestUser.get().getCompanyOrUniversity(),
                         guestUser.get().isPrivacyEnable(),
-                        guestUser.get().getPaperList()
+                        guestUser.get().getDonatedBookList()
                 );
                 return new ResponseEntity<>(guestUserResponse, HttpStatus.OK);
             } else {

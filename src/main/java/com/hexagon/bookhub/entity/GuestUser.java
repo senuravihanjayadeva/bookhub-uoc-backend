@@ -19,7 +19,7 @@ public class GuestUser extends User{
 
     @DBRef
     @Field
-    private List<Paper> paperList = new ArrayList<>();
+    private List<PhysicalBook> donatedBookList = new ArrayList<>();
 
     public GuestUser() {
     }
@@ -43,17 +43,17 @@ public class GuestUser extends User{
         this.isPrivacyEnable = isPrivacyEnable;
     }
 
-    public GuestUser(String fullName, String contactNumber, String address, boolean isStudent, String companyOrUniversity, boolean isPrivacyEnable, List<Paper> paperList) {
+    public GuestUser(String fullName, String contactNumber, String address, boolean isStudent, String companyOrUniversity, boolean isPrivacyEnable, List<PhysicalBook> donatedBookList) {
         this.fullName = fullName;
         this.contactNumber = contactNumber;
         this.address = address;
         this.isStudent = isStudent;
         this.companyOrUniversity = companyOrUniversity;
         this.isPrivacyEnable = isPrivacyEnable;
-        this.paperList = paperList;
+        this.donatedBookList = donatedBookList;
     }
 
-    public GuestUser(String email, String password, String fullName, String contactNumber, String address, boolean isStudent, String companyOrUniversity, boolean isPrivacyEnable, List<Paper> paperList) {
+    public GuestUser(String email, String password, String fullName, String contactNumber, String address, boolean isStudent, String companyOrUniversity, boolean isPrivacyEnable, List<PhysicalBook> donatedBookList) {
         super(email, password);
         this.fullName = fullName;
         this.contactNumber = contactNumber;
@@ -61,7 +61,7 @@ public class GuestUser extends User{
         this.isStudent = isStudent;
         this.companyOrUniversity = companyOrUniversity;
         this.isPrivacyEnable = isPrivacyEnable;
-        this.paperList = paperList;
+        this.donatedBookList = donatedBookList;
     }
 
     public String getFullName() {
@@ -112,11 +112,11 @@ public class GuestUser extends User{
         isPrivacyEnable = privacyEnable;
     }
 
-    public List<Paper> getPaperList() {
-        return paperList;
+    public List<PhysicalBook> getDonatedBookList() {
+        return donatedBookList;
     }
 
-    public void setPaperList(List<Paper> paperList) {
-        this.paperList = paperList;
+    public void setDonatedBookList(List<PhysicalBook> donatedBookList) {
+        this.donatedBookList = donatedBookList;
     }
 }
