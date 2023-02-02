@@ -1,9 +1,6 @@
 package com.hexagon.bookhub.controller;
 
-import com.hexagon.bookhub.entity.EPaperType;
-import com.hexagon.bookhub.entity.EStatus;
-import com.hexagon.bookhub.entity.Paper;
-import com.hexagon.bookhub.entity.PhysicalBook;
+import com.hexagon.bookhub.entity.*;
 import com.hexagon.bookhub.payload.request.DonateBookRequest;
 import com.hexagon.bookhub.payload.request.PaperRequest;
 import com.hexagon.bookhub.service.BookService;
@@ -27,7 +24,7 @@ public class BookController {
     @PostMapping("/donatebook")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> donateBook(HttpServletRequest request, @RequestBody DonateBookRequest donateBookRequest){
-        log.info("Inside the savePaper in Paper Controller");
+        log.info("Inside the donateBook in Book Controller");
         PhysicalBook physicalBook = new PhysicalBook(
                 donateBookRequest.getTitle(),
                 donateBookRequest.getAuthor(),
@@ -51,7 +48,7 @@ public class BookController {
     @PutMapping("/physicalbook/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> editPhysicalBook(@PathVariable String id, @RequestBody DonateBookRequest donateBookRequest){
-        log.info("Inside the editPhysicalBook in Paper Controller");
+        log.info("Inside the editPhysicalBook in Book Controller");
         PhysicalBook physicalBook = new PhysicalBook(
                 donateBookRequest.getTitle(),
                 donateBookRequest.getAuthor(),
@@ -62,6 +59,13 @@ public class BookController {
                 donateBookRequest.getDonatedBy());
 
         return bookService.editPhysicalBook(id,physicalBook);
+    }
+
+    @PostMapping("/digitalbook")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> saveDigitalBook(HttpServletRequest request, @RequestBody DigitalBook digitalBook){
+        log.info("Inside the saveDigitalBook in Book Controller");
+        return bookService.saveDigitalBook(request,digitalBook);
     }
 
 }

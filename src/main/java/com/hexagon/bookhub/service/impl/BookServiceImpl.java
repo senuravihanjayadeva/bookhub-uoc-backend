@@ -1,8 +1,8 @@
 package com.hexagon.bookhub.service.impl;
 
-import com.hexagon.bookhub.entity.GuestUser;
-import com.hexagon.bookhub.entity.Paper;
-import com.hexagon.bookhub.entity.PhysicalBook;
+import com.hexagon.bookhub.entity.*;
+import com.hexagon.bookhub.repository.AdminRepository;
+import com.hexagon.bookhub.repository.DigitalBookRepository;
 import com.hexagon.bookhub.repository.GuestUserRepository;
 import com.hexagon.bookhub.repository.PhysicalBookRepository;
 import com.hexagon.bookhub.service.BookService;
@@ -25,15 +25,18 @@ public class BookServiceImpl implements BookService {
 
     @Autowired
     private GuestUserRepository guestUserRepository;
-
+    @Autowired
+    private AdminRepository adminRepository;
     @Autowired
     private PhysicalBookRepository physicalBookRepository;
+    @Autowired
+    private DigitalBookRepository digitalBookRepository;
     @Autowired
     private AutheticationUtil autheticationUtil;
 
     public ResponseEntity<?> donateBook(HttpServletRequest request, PhysicalBook physicalBook){
         try {
-            log.info("Inside the donateBook in Physical Book Service");
+            log.info("Inside the donateBook in Book Service");
             String userEmail = autheticationUtil.getAuthenticatedEmail(request);
             if(!userEmail.isEmpty()){
                 log.info("User Email Exist " + userEmail);
@@ -109,6 +112,47 @@ public class BookServiceImpl implements BookService {
                 return new ResponseEntity<>("Book Update Error", HttpStatus.NOT_FOUND);
             }
         }catch (Exception e){
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    public ResponseEntity<?> saveDigitalBook(HttpServletRequest request, DigitalBook digitalBook){
+        try {
+            log.info("Inside the saveDigitalBook in Book Service");
+            String userEmail = autheticationUtil.getAuthenticatedEmail(request);
+            if(!userEmail.isEmpty()){
+                log.info("User Email Exist " + userEmail);
+                Optional<Admin> user = adminRepository.findByEmail(userEmail);
+                log.info("User : " + user.get().getId());
+                if (user.isPresent()) {
+                    DigitalBook _book = digitalBookRepository.save(digitalBook);
+                    log.info("Book saved " + _book.getId());
+                    Admin _updatedUser = user.get();
+                    log.info("Get User for updating the digital book list");
+                    List<DigitalBook> _bookList = new ArrayList<DigitalBook>();
+                    log.info("Get User for digital book list size :" + _updatedUser.getDigitalBookList().size());
+                    if(_updatedUser.getDigitalBookList().size() > 0){
+                        log.info("Having a digital book list");
+                        _bookList = _updatedUser.getDigitalBookList();
+                        _bookList.add(_book);
+                    }else{
+                        log.info("Empty digita; book list");
+                        _bookList.add(_book);
+                    }
+
+                    _updatedUser.setDigitalBookList(_bookList);
+                    log.info("Added the new book to the User Donated Book List");
+                    adminRepository.save(_updatedUser);
+                    log.info("Updated the user with new Donated Book List");
+                    return new ResponseEntity<DigitalBook>(_book, HttpStatus.OK);
+                } else {
+                    log.info("No User for the given mail");
+                    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                }
+            }else{
+                log.info("User not found");
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
