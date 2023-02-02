@@ -68,4 +68,10 @@ public class BookController {
         return bookService.saveDigitalBook(request,digitalBook);
     }
 
+    @GetMapping("/digitalbook/all")
+    public ResponseEntity<?> getAllDigitalBooks(){
+        log.info("Inside the getAllDigitalBooks in Book Controller");
+        return bookService.getAllDigitalBooks();
+    }
+
 }

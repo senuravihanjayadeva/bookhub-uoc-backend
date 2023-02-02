@@ -156,4 +156,22 @@ public class BookServiceImpl implements BookService {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    public ResponseEntity<?> getAllDigitalBooks(){
+        log.info("Inside the getAllDigitalBooks in Book Service");
+        try{
+            List<DigitalBook> bookList =  digitalBookRepository.findAll();
+            if(bookList.size() > 0){
+                List<DigitalBook> filteredBookList = bookList.stream()
+                        .filter(book -> book.isDeleted() == false)
+                        .collect(Collectors.toList());
+                log.info("Filtered the non deleted books");
+                return new ResponseEntity<List<DigitalBook>>(filteredBookList, HttpStatus.OK);
+            }else {
+                return new ResponseEntity<>(null,HttpStatus.NO_CONTENT);
+            }
+        }catch (Exception e){
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

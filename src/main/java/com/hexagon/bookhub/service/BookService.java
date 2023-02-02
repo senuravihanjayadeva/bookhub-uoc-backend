@@ -12,4 +12,5 @@ public interface BookService {
     public ResponseEntity<?> getAllPhysicalBooks();
     public ResponseEntity<?> editPhysicalBook(String id, PhysicalBook physicalBook);
     public ResponseEntity<?> saveDigitalBook(HttpServletRequest request, DigitalBook digitalBook);
+    public ResponseEntity<?> getAllDigitalBooks();
 }
