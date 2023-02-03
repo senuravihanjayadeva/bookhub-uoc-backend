@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -75,7 +76,6 @@ public class BookServiceImpl implements BookService {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
     public ResponseEntity<?> getAllPhysicalBooks(){
         log.info("Inside the getAllPhysicalBooks in Book Service");
         try{
@@ -93,7 +93,6 @@ public class BookServiceImpl implements BookService {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
     public ResponseEntity<?> editPhysicalBook(String id, PhysicalBook physicalBook){
         log.info("Inside the editPhysicalBook in Book Service");
         try {
@@ -156,7 +155,6 @@ public class BookServiceImpl implements BookService {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
     public ResponseEntity<?> getAllDigitalBooks(){
         log.info("Inside the getAllDigitalBooks in Book Service");
         try{
@@ -195,4 +193,100 @@ public class BookServiceImpl implements BookService {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    public ResponseEntity<?> borrowBook(HttpServletRequest request, String id){
+        log.info("Inside the editPhysicalBook in Book Service");
+        try {
+            log.info("Inside the saveDigitalBook in Book Service");
+            String userEmail = autheticationUtil.getAuthenticatedEmail(request);
+            if(!userEmail.isEmpty()) {
+                log.info("User Email Exist " + userEmail);
+                Optional<GuestUser> user = guestUserRepository.findByEmail(userEmail);
+                log.info("User : " + user.get().getId());
+                if (user.isPresent()) {
+                    Optional<PhysicalBook> _book = physicalBookRepository.findById(id);
+                    if (_book.isPresent()) {
+                        PhysicalBook updateBookRepo = _book.get();
+                        if(updateBookRepo.getStatus() == EStatus.AVAILABLE){
+                            updateBookRepo.setStatus(EStatus.PENDING);
+
+                            BookRequestUser bookRequestUser = new BookRequestUser();
+                            bookRequestUser.setGuestUser(user.get());
+                            bookRequestUser.setRequestedDate(new Date());
+                            log.info("Created a book request user");
+
+                            List<BookRequestUser> _requestersList = new ArrayList<>();
+                            log.info("Get requesters list size :" + updateBookRepo.getRequestersList().size());
+
+                            if(updateBookRepo.getRequestersList().size() > 0){
+                                log.info("Having a requesters list");
+                                _requestersList = updateBookRepo.getRequestersList();
+                                _requestersList.add(bookRequestUser);
+                            }else{
+                                log.info("Empty requesters list");
+                                _requestersList.add(bookRequestUser);
+                            }
+                            updateBookRepo.setRequestersList(_requestersList);
+                            return new ResponseEntity<>(physicalBookRepository.save(updateBookRepo), HttpStatus.OK);
+                        }else{
+                            return new ResponseEntity<>("You Cant Borrow this Book Now", HttpStatus.NOT_FOUND);
+                        }
+                    } else {
+                        return new ResponseEntity<>("Book Update Error", HttpStatus.NOT_FOUND);
+                    }
+                }else{
+                    log.info("User not found");
+                    return new ResponseEntity<>("Book Update Error", HttpStatus.NOT_FOUND);
+                }
+            }else{
+                log.info("User not found");
+                return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            }
+        }catch (Exception e){
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    public ResponseEntity<?> approvalForBorrowRequest(String id){
+        try {
+            log.info("Inside the approvalForBorrowRequest in Book Service");
+            Optional<PhysicalBook> _book = physicalBookRepository.findById(id);
+            if (_book.isPresent()) {
+                PhysicalBook updateBookRepo = _book.get();
+                if(updateBookRepo.getStatus() == EStatus.PENDING){
+                    updateBookRepo.setStatus(EStatus.BORROWED);
+                    log.info("Gave approval for book request user");
+
+                    List<BookRequestUser> _borrowersList = new ArrayList<>();
+                    log.info("Get requesters list size :" + updateBookRepo.getRequestersList().size());
+
+                    if(updateBookRepo.getRequestersList().size() > 0){
+                        log.info("Having a requesters list");
+                        BookRequestUser bookRequestUser = updateBookRepo.getRequestersList().get(0);
+                        bookRequestUser.setApprovalDate(new Date());
+                        _borrowersList = updateBookRepo.getRequestersList();
+                        if(updateBookRepo.getBorrowerList().size() > 0){
+                            _borrowersList = updateBookRepo.getBorrowerList();
+                            _borrowersList.add(bookRequestUser);
+                        }else{
+                            _borrowersList.add(bookRequestUser);
+                        }
+                        log.info("Added book request user to borrowers list");
+                    }else{
+                        log.info("No requesters list");
+                        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+                    }
+                    updateBookRepo.setRequestersList(new ArrayList<>());
+                    log.info("Empty requesters list");
+                    updateBookRepo.setBorrowerList(_borrowersList);
+                    log.info("set borrowers list");
+                    return new ResponseEntity<>(physicalBookRepository.save(updateBookRepo), HttpStatus.OK);
+                }else{
+                    return new ResponseEntity<>("You Cant Borrow this Book Now", HttpStatus.NOT_FOUND);
+                }
+            } else {
+                return new ResponseEntity<>("Book Update Error", HttpStatus.NOT_FOUND);
+            }
+    }catch (Exception e){
+        return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+}
 }

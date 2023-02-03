@@ -15,10 +15,10 @@ import java.util.List;
 public class PhysicalBook extends Book{
     private String donatedBy;
     @Field
-    private List<GuestUser> borrowerList = new ArrayList<>();;
+    private List<BookRequestUser> borrowerList = new ArrayList<>();;
     private EStatus status;
     @Field
-    private List<GuestUser> requestersList = new ArrayList<>();
+    private List<BookRequestUser> requestersList = new ArrayList<>();
     public PhysicalBook(String title, String author, String Genre, String description, String publisher, String edition, String donatedBy) {
         super(title, author, Genre, description, publisher, edition);
         this.donatedBy = donatedBy;

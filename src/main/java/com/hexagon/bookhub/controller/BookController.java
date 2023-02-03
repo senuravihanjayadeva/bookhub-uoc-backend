@@ -17,10 +17,8 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping("/api/book")
 @Slf4j
 public class BookController {
-
     @Autowired
     private BookService bookService;
-
     @PostMapping("/donatebook")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> donateBook(HttpServletRequest request, @RequestBody DonateBookRequest donateBookRequest){
@@ -38,13 +36,11 @@ public class BookController {
 
         return bookService.donateBook(request,physicalBook);
     }
-
     @GetMapping("/physicalbook/all")
     public ResponseEntity<?> getAllPhysicalBooks(){
         log.info("Inside the getAllPhysicalBooks in Book Controller");
         return bookService.getAllPhysicalBooks();
     }
-
     @PutMapping("/physicalbook/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> editPhysicalBook(@PathVariable String id, @RequestBody DonateBookRequest donateBookRequest){
@@ -60,14 +56,24 @@ public class BookController {
 
         return bookService.editPhysicalBook(id,physicalBook);
     }
-
+    @PostMapping("/physicalbook/borrowrequest/{id}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> borrowBook(HttpServletRequest request,@PathVariable String id){
+        log.info("Inside the borrowBook in Book Controller");
+        return bookService.borrowBook(request,id);
+    }
+    @PostMapping("/physicalbook/borrowrequest/approve/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> approvalForBorrowRequest(@PathVariable String id){
+        log.info("Inside the approvalForBorrowRequest in Book Controller");
+        return bookService.approvalForBorrowRequest(id);
+    }
     @PostMapping("/digitalbook")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> saveDigitalBook(HttpServletRequest request, @RequestBody DigitalBook digitalBook){
         log.info("Inside the saveDigitalBook in Book Controller");
         return bookService.saveDigitalBook(request,digitalBook);
     }
-
     @GetMapping("/digitalbook/all")
     public ResponseEntity<?> getAllDigitalBooks(){
         log.info("Inside the getAllDigitalBooks in Book Controller");
@@ -79,5 +85,4 @@ public class BookController {
         log.info("Inside the editDigitalBook in Book Controller");
         return bookService.editDigitalBook(id,digitalBook);
     }
-
 }
