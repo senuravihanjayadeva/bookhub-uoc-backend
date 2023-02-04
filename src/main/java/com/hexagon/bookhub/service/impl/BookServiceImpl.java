@@ -86,54 +86,8 @@ public class BookServiceImpl implements BookService {
                         .filter(book -> book.isDeleted() == false)
                         .collect(Collectors.toList());
                 log.info("Filtered the non deleted books");
-                List<PhysicalBookResponse> physicalBookResponseList = new ArrayList<>();
-
-                for(PhysicalBook physicalBook: filteredBookList){
-                    PhysicalBookResponse physicalBookResponse = new PhysicalBookResponse(
-                            physicalBook.getId(),
-                            physicalBook.getTitle(),
-                            physicalBook.getAuthor(),
-                            physicalBook.getGenre(),
-                            physicalBook.getDescription(),
-                            physicalBook.getPublisher(),
-                            physicalBook.getEdition(),
-                            physicalBook.getDonatedBy(),
-                            physicalBook.getStatus());
-
-                    List<BookRequestUserResponse> requestersList = new ArrayList<>();
-                    for(BookRequestUser bookRequestUser: physicalBook.getRequestersList()){
-
-                        UserResponse userResponse = new UserResponse(
-                                bookRequestUser.getGuestUser().getId(),
-                                bookRequestUser.getGuestUser().getEmail(),
-                                bookRequestUser.getGuestUser().getFullName());
-                        BookRequestUserResponse bookRequestUserResponse = new BookRequestUserResponse(
-                                bookRequestUser.getId(),
-                                userResponse,
-                                bookRequestUser.getRequestedDate());
-                        requestersList.add(bookRequestUserResponse);
-                    }
-
-                    physicalBookResponse.setRequestersList(requestersList);
-
-                    List<BookBorrowerUserResponse> borrowesList = new ArrayList<>();
-                    for(BookRequestUser bookRequestUser: physicalBook.getBorrowerList()){
-                        UserResponse userResponse = new UserResponse(
-                                bookRequestUser.getGuestUser().getId(),
-                                bookRequestUser.getGuestUser().getEmail(),
-                                bookRequestUser.getGuestUser().getFullName());
-                        BookBorrowerUserResponse bookBorrowerUserResponse = new BookBorrowerUserResponse(
-                                bookRequestUser.getId(),
-                                userResponse,
-                                bookRequestUser.getApprovalDate());
-                        borrowesList.add(bookBorrowerUserResponse);
-                    }
-
-                    physicalBookResponse.setBorrowerList(borrowesList);
-
-                    physicalBookResponseList.add(physicalBookResponse);
-                }
-
+                List<PhysicalBookResponse> physicalBookResponseList = covertToPhysicalBookListResponse(filteredBookList);
+                log.info("Coverted the physical book list to PhysicalBookResponse list");
                 return new ResponseEntity<>(physicalBookResponseList, HttpStatus.OK);
             }else {
                 return new ResponseEntity<>(null,HttpStatus.NO_CONTENT);
@@ -155,7 +109,9 @@ public class BookServiceImpl implements BookService {
                 updateBookRepo.setPublisher(physicalBook.getPublisher());
                 updateBookRepo.setEdition(physicalBook.getEdition());
                 updateBookRepo.setDonatedBy(physicalBook.getDonatedBy());
-                return new ResponseEntity<>(physicalBookRepository.save(updateBookRepo), HttpStatus.OK);
+
+                PhysicalBookResponse covertedResponse = covertToPhysicalBookResponse(physicalBookRepository.save(updateBookRepo));
+                return new ResponseEntity<>(covertedResponse, HttpStatus.OK);
             } else {
                 return new ResponseEntity<>("Book Update Error", HttpStatus.NOT_FOUND);
             }
@@ -279,8 +235,9 @@ public class BookServiceImpl implements BookService {
                             }
                             updateBookRepo.setRequestersList(_requestersList);
                             log.info("set requesters list" + updateBookRepo.getRequestersList());
-                            physicalBookRepository.save(updateBookRepo);
-                            return new ResponseEntity<>("Borrowed Request Completed", HttpStatus.OK);
+
+                            PhysicalBookResponse covertedResponse = covertToPhysicalBookResponse(physicalBookRepository.save(updateBookRepo));
+                            return new ResponseEntity<>(covertedResponse, HttpStatus.OK);
                         }else{
                             return new ResponseEntity<>("You Cant Borrow this Book Now", HttpStatus.NOT_FOUND);
                         }
@@ -338,8 +295,9 @@ public class BookServiceImpl implements BookService {
                     log.info("Empty requesters list");
                     updateBookRepo.setBorrowerList(_borrowersList);
                     log.info("set borrowers list");
-                    physicalBookRepository.save(updateBookRepo);
-                    return new ResponseEntity<>("Approved", HttpStatus.OK);
+
+                    PhysicalBookResponse covertedResponse = covertToPhysicalBookResponse(physicalBookRepository.save(updateBookRepo));
+                    return new ResponseEntity<>(covertedResponse, HttpStatus.OK);
                 }else{
                     return new ResponseEntity<>("You Cant Borrow this Book Now", HttpStatus.NOT_FOUND);
                 }
@@ -350,4 +308,102 @@ public class BookServiceImpl implements BookService {
         return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
+    public List<PhysicalBookResponse> covertToPhysicalBookListResponse(List<PhysicalBook> filteredBookList){
+        List<PhysicalBookResponse> physicalBookResponseList = new ArrayList<>();
+
+        for(PhysicalBook physicalBook: filteredBookList){
+            PhysicalBookResponse physicalBookResponse = new PhysicalBookResponse(
+                    physicalBook.getId(),
+                    physicalBook.getTitle(),
+                    physicalBook.getAuthor(),
+                    physicalBook.getGenre(),
+                    physicalBook.getDescription(),
+                    physicalBook.getPublisher(),
+                    physicalBook.getEdition(),
+                    physicalBook.getDonatedBy(),
+                    physicalBook.getStatus());
+
+            List<BookRequestUserResponse> requestersList = new ArrayList<>();
+            for(BookRequestUser bookRequestUser: physicalBook.getRequestersList()){
+
+                UserResponse userResponse = new UserResponse(
+                        bookRequestUser.getGuestUser().getId(),
+                        bookRequestUser.getGuestUser().getEmail(),
+                        bookRequestUser.getGuestUser().getFullName());
+                BookRequestUserResponse bookRequestUserResponse = new BookRequestUserResponse(
+                        bookRequestUser.getId(),
+                        userResponse,
+                        bookRequestUser.getRequestedDate());
+                requestersList.add(bookRequestUserResponse);
+            }
+
+            physicalBookResponse.setRequestersList(requestersList);
+
+            List<BookBorrowerUserResponse> borrowesList = new ArrayList<>();
+            for(BookRequestUser bookRequestUser: physicalBook.getBorrowerList()){
+                UserResponse userResponse = new UserResponse(
+                        bookRequestUser.getGuestUser().getId(),
+                        bookRequestUser.getGuestUser().getEmail(),
+                        bookRequestUser.getGuestUser().getFullName());
+                BookBorrowerUserResponse bookBorrowerUserResponse = new BookBorrowerUserResponse(
+                        bookRequestUser.getId(),
+                        userResponse,
+                        bookRequestUser.getApprovalDate());
+                borrowesList.add(bookBorrowerUserResponse);
+            }
+
+            physicalBookResponse.setBorrowerList(borrowesList);
+
+            physicalBookResponseList.add(physicalBookResponse);
+
+        }
+        return physicalBookResponseList;
+    }
+    public PhysicalBookResponse covertToPhysicalBookResponse(PhysicalBook physicalBook){
+
+            PhysicalBookResponse physicalBookResponse = new PhysicalBookResponse(
+                    physicalBook.getId(),
+                    physicalBook.getTitle(),
+                    physicalBook.getAuthor(),
+                    physicalBook.getGenre(),
+                    physicalBook.getDescription(),
+                    physicalBook.getPublisher(),
+                    physicalBook.getEdition(),
+                    physicalBook.getDonatedBy(),
+                    physicalBook.getStatus());
+
+            List<BookRequestUserResponse> requestersList = new ArrayList<>();
+            for(BookRequestUser bookRequestUser: physicalBook.getRequestersList()){
+
+                UserResponse userResponse = new UserResponse(
+                        bookRequestUser.getGuestUser().getId(),
+                        bookRequestUser.getGuestUser().getEmail(),
+                        bookRequestUser.getGuestUser().getFullName());
+                BookRequestUserResponse bookRequestUserResponse = new BookRequestUserResponse(
+                        bookRequestUser.getId(),
+                        userResponse,
+                        bookRequestUser.getRequestedDate());
+                requestersList.add(bookRequestUserResponse);
+            }
+
+            physicalBookResponse.setRequestersList(requestersList);
+
+            List<BookBorrowerUserResponse> borrowesList = new ArrayList<>();
+            for(BookRequestUser bookRequestUser: physicalBook.getBorrowerList()){
+                UserResponse userResponse = new UserResponse(
+                        bookRequestUser.getGuestUser().getId(),
+                        bookRequestUser.getGuestUser().getEmail(),
+                        bookRequestUser.getGuestUser().getFullName());
+                BookBorrowerUserResponse bookBorrowerUserResponse = new BookBorrowerUserResponse(
+                        bookRequestUser.getId(),
+                        userResponse,
+                        bookRequestUser.getApprovalDate());
+                borrowesList.add(bookBorrowerUserResponse);
+            }
+
+            physicalBookResponse.setBorrowerList(borrowesList);
+
+
+        return physicalBookResponse;
+    }
 }
