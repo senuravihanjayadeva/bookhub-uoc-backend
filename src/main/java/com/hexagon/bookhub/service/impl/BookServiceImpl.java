@@ -279,7 +279,8 @@ public class BookServiceImpl implements BookService {
                             }
                             updateBookRepo.setRequestersList(_requestersList);
                             log.info("set requesters list" + updateBookRepo.getRequestersList());
-                            return new ResponseEntity<>(physicalBookRepository.save(updateBookRepo), HttpStatus.OK);
+                            physicalBookRepository.save(updateBookRepo);
+                            return new ResponseEntity<>("Borrowed Request Completed", HttpStatus.OK);
                         }else{
                             return new ResponseEntity<>("You Cant Borrow this Book Now", HttpStatus.NOT_FOUND);
                         }
@@ -305,8 +306,6 @@ public class BookServiceImpl implements BookService {
             if (_book.isPresent()) {
                 PhysicalBook updateBookRepo = _book.get();
                 if(updateBookRepo.getStatus() == EStatus.PENDING){
-                    updateBookRepo.setStatus(EStatus.BORROWED);
-                    log.info("Gave approval for book request user");
 
                     List<BookRequestUser> _borrowersList = new ArrayList<>();
                     log.info("Get requesters list size :" + updateBookRepo.getRequestersList().size());
@@ -314,24 +313,33 @@ public class BookServiceImpl implements BookService {
                     if(updateBookRepo.getRequestersList().size() > 0){
                         log.info("Having a requesters list");
                         BookRequestUser bookRequestUser = updateBookRepo.getRequestersList().get(0);
+                        log.info("Last requester : " + bookRequestUser.getGuestUser().getId());
                         bookRequestUser.setApprovalDate(new Date());
-                        _borrowersList = updateBookRepo.getRequestersList();
                         if(updateBookRepo.getBorrowerList().size() > 0){
+                            log.info("Having a previous borrowers list");
                             _borrowersList = updateBookRepo.getBorrowerList();
+                            log.info("Size of the current borrowed list" + _borrowersList.size());
                             _borrowersList.add(bookRequestUser);
-                        }else{
+                            updateBookRepo.setStatus(EStatus.BORROWED);
+                            log.info("Gave approval for book request user");
+                        }else {
+                            log.info("No previous borrowers list");
                             _borrowersList.add(bookRequestUser);
+                            updateBookRepo.setStatus(EStatus.BORROWED);
+                            log.info("Gave approval for book request user");
                         }
                         log.info("Added book request user to borrowers list");
                     }else{
                         log.info("No requesters list");
                         return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
                     }
-                    updateBookRepo.setRequestersList(new ArrayList<>());
+                    List<BookRequestUser> _emptyRequestersList = new ArrayList<>();
+                    updateBookRepo.setRequestersList(_emptyRequestersList);
                     log.info("Empty requesters list");
                     updateBookRepo.setBorrowerList(_borrowersList);
                     log.info("set borrowers list");
-                    return new ResponseEntity<>(physicalBookRepository.save(updateBookRepo), HttpStatus.OK);
+                    physicalBookRepository.save(updateBookRepo);
+                    return new ResponseEntity<>("Approved", HttpStatus.OK);
                 }else{
                     return new ResponseEntity<>("You Cant Borrow this Book Now", HttpStatus.NOT_FOUND);
                 }
