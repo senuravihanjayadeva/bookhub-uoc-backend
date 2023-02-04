@@ -1,11 +1,8 @@
 package com.hexagon.bookhub.payload.response;
 
-import com.hexagon.bookhub.entity.Paper;
-import com.hexagon.bookhub.entity.PhysicalBook;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.util.List;
 
 @Data
@@ -21,5 +18,5 @@ public class GuestUserResponse {
     private boolean isStudent;
     private String  companyOrUniversity;
     private boolean isPrivacyEnable;
-    private List<PhysicalBook> donatedBookList;
+    private List<PhysicalBookResponse> donatedBookList;
 }
