@@ -1,6 +1,9 @@
 package com.hexagon.bookhub.service.impl;
 
 import com.hexagon.bookhub.entity.*;
+import com.hexagon.bookhub.payload.response.BookRequestUserResponse;
+import com.hexagon.bookhub.payload.response.PhysicalBookResponse;
+import com.hexagon.bookhub.payload.response.UserResponse;
 import com.hexagon.bookhub.repository.AdminRepository;
 import com.hexagon.bookhub.repository.DigitalBookRepository;
 import com.hexagon.bookhub.repository.GuestUserRepository;
@@ -14,10 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -85,12 +85,44 @@ public class BookServiceImpl implements BookService {
                         .filter(book -> book.isDeleted() == false)
                         .collect(Collectors.toList());
                 log.info("Filtered the non deleted books");
-                return new ResponseEntity<List<PhysicalBook>>(filteredBookList, HttpStatus.OK);
+                List<PhysicalBookResponse> physicalBookResponseList = new ArrayList<>();
+
+                for(PhysicalBook physicalBook: filteredBookList){
+                    PhysicalBookResponse physicalBookResponse = new PhysicalBookResponse(
+                            physicalBook.getId(),
+                            physicalBook.getTitle(),
+                            physicalBook.getAuthor(),
+                            physicalBook.getGenre(),
+                            physicalBook.getDescription(),
+                            physicalBook.getPublisher(),
+                            physicalBook.getEdition(),
+                            physicalBook.getDonatedBy(),
+                            physicalBook.getStatus());
+
+                    List<BookRequestUserResponse> requestersList = new ArrayList<>();
+                    for(BookRequestUser bookRequestUser: physicalBook.getRequestersList()){
+
+                        UserResponse userResponse = new UserResponse(
+                                bookRequestUser.getGuestUser().getId(),
+                                bookRequestUser.getGuestUser().getEmail(),
+                                bookRequestUser.getGuestUser().getFullName());
+                        BookRequestUserResponse bookRequestUserResponse = new BookRequestUserResponse(
+                                bookRequestUser.getId(),
+                                userResponse,
+                                bookRequestUser.getRequestedDate());
+                        requestersList.add(bookRequestUserResponse);
+                    }
+
+                    physicalBookResponse.setRequestersList(requestersList);
+                    physicalBookResponseList.add(physicalBookResponse);
+                }
+
+                return new ResponseEntity<>(physicalBookResponseList, HttpStatus.OK);
             }else {
                 return new ResponseEntity<>(null,HttpStatus.NO_CONTENT);
             }
         }catch (Exception e){
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     public ResponseEntity<?> editPhysicalBook(String id, PhysicalBook physicalBook){
@@ -210,6 +242,9 @@ public class BookServiceImpl implements BookService {
                             updateBookRepo.setStatus(EStatus.PENDING);
 
                             BookRequestUser bookRequestUser = new BookRequestUser();
+
+                            UUID uuid = UUID.randomUUID();
+                            bookRequestUser.setId(uuid.toString());
                             bookRequestUser.setGuestUser(user.get());
                             bookRequestUser.setRequestedDate(new Date());
                             log.info("Created a book request user");
@@ -226,6 +261,7 @@ public class BookServiceImpl implements BookService {
                                 _requestersList.add(bookRequestUser);
                             }
                             updateBookRepo.setRequestersList(_requestersList);
+                            log.info("set requesters list" + updateBookRepo.getRequestersList());
                             return new ResponseEntity<>(physicalBookRepository.save(updateBookRepo), HttpStatus.OK);
                         }else{
                             return new ResponseEntity<>("You Cant Borrow this Book Now", HttpStatus.NOT_FOUND);
@@ -242,7 +278,7 @@ public class BookServiceImpl implements BookService {
                 return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
             }
         }catch (Exception e){
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     public ResponseEntity<?> approvalForBorrowRequest(String id){

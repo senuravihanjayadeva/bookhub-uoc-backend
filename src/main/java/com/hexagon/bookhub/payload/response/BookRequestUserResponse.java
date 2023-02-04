@@ -1,22 +1,18 @@
-package com.hexagon.bookhub.entity;
+package com.hexagon.bookhub.payload.response;
 
+import com.hexagon.bookhub.entity.GuestUser;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class BookRequestUser {
-    @Id
+public class BookRequestUserResponse {
     private String id;
-    @DBRef
-    private GuestUser guestUser;
+    private UserResponse guestUser;
     private Date requestedDate;
-    private Date approvalDate;
-
 }
