@@ -19,7 +19,7 @@ public class PhysicalBookResponse {
     private String publisher;
     private String edition;
     private String donatedBy;
-    private List<BookRequestUserResponse> borrowerList;
+    private List<BookBorrowerUserResponse> borrowerList;
     private EStatus status;
     private List<BookRequestUserResponse> requestersList;
 

@@ -1,6 +1,7 @@
 package com.hexagon.bookhub.service.impl;
 
 import com.hexagon.bookhub.entity.*;
+import com.hexagon.bookhub.payload.response.BookBorrowerUserResponse;
 import com.hexagon.bookhub.payload.response.BookRequestUserResponse;
 import com.hexagon.bookhub.payload.response.PhysicalBookResponse;
 import com.hexagon.bookhub.payload.response.UserResponse;
@@ -114,6 +115,22 @@ public class BookServiceImpl implements BookService {
                     }
 
                     physicalBookResponse.setRequestersList(requestersList);
+
+                    List<BookBorrowerUserResponse> borrowesList = new ArrayList<>();
+                    for(BookRequestUser bookRequestUser: physicalBook.getBorrowerList()){
+                        UserResponse userResponse = new UserResponse(
+                                bookRequestUser.getGuestUser().getId(),
+                                bookRequestUser.getGuestUser().getEmail(),
+                                bookRequestUser.getGuestUser().getFullName());
+                        BookBorrowerUserResponse bookBorrowerUserResponse = new BookBorrowerUserResponse(
+                                bookRequestUser.getId(),
+                                userResponse,
+                                bookRequestUser.getApprovalDate());
+                        borrowesList.add(bookBorrowerUserResponse);
+                    }
+
+                    physicalBookResponse.setBorrowerList(borrowesList);
+
                     physicalBookResponseList.add(physicalBookResponse);
                 }
 
