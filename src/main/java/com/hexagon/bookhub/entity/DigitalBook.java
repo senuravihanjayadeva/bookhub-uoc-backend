@@ -11,5 +11,6 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @NoArgsConstructor
 @Document(collection = "digital_books")
 public class DigitalBook extends Book{
+    private String coverImage;
     private String pdfLink;
 }

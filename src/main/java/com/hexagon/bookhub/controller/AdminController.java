@@ -1,6 +1,9 @@
 package com.hexagon.bookhub.controller;
 
+import com.hexagon.bookhub.entity.Admin;
+import com.hexagon.bookhub.payload.response.AdminResponse;
 import com.hexagon.bookhub.payload.response.GuestUserResponse;
+import com.hexagon.bookhub.service.AdminService;
 import com.hexagon.bookhub.service.GuestUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +19,9 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping("/api/admin")
 public class AdminController {
     @Autowired
-    private GuestUserService guestUserService;
+    private AdminService adminService;
     @GetMapping
-    public ResponseEntity<GuestUserResponse> getUserDetails(HttpServletRequest request){
-        return guestUserService.getUserDetails(request);
+    public ResponseEntity<AdminResponse> getUserDetails(HttpServletRequest request){
+        return adminService.getUserDetails(request);
     }
 }
