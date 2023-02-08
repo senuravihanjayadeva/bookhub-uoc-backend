@@ -18,5 +18,7 @@ public class GuestUserResponse {
     private boolean isStudent;
     private String  companyOrUniversity;
     private boolean isPrivacyEnable;
+    private String profileImageLink;
+    private String role;
     private List<PhysicalBookResponse> donatedBookList;
 }

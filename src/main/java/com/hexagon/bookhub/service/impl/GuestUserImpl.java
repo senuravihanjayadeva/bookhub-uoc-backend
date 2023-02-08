@@ -2,6 +2,7 @@ package com.hexagon.bookhub.service.impl;
 
 import com.hexagon.bookhub.entity.GuestUser;
 import com.hexagon.bookhub.entity.PhysicalBook;
+import com.hexagon.bookhub.entity.Role;
 import com.hexagon.bookhub.payload.response.GuestUserResponse;
 import com.hexagon.bookhub.payload.response.PhysicalBookResponse;
 import com.hexagon.bookhub.repository.GuestUserRepository;
@@ -17,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -57,6 +59,8 @@ public class GuestUserImpl implements GuestUserService {
                         guestUser.get().isStudent(),
                         guestUser.get().getCompanyOrUniversity(),
                         guestUser.get().isPrivacyEnable(),
+                        guestUser.get().getProfileImageLink(),
+                        "user",
                         physicalBookResponseList
                 );
                 return new ResponseEntity<>(guestUserResponse, HttpStatus.OK);

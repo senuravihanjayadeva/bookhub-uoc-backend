@@ -9,6 +9,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @NoArgsConstructor
 @Document(collection = "audio_books")
-public class AudioBook {
+public class AudioBook extends Book {
     private String audioLink;
 }

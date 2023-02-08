@@ -5,10 +5,7 @@ import com.hexagon.bookhub.payload.response.BookBorrowerUserResponse;
 import com.hexagon.bookhub.payload.response.BookRequestUserResponse;
 import com.hexagon.bookhub.payload.response.PhysicalBookResponse;
 import com.hexagon.bookhub.payload.response.UserResponse;
-import com.hexagon.bookhub.repository.AdminRepository;
-import com.hexagon.bookhub.repository.DigitalBookRepository;
-import com.hexagon.bookhub.repository.GuestUserRepository;
-import com.hexagon.bookhub.repository.PhysicalBookRepository;
+import com.hexagon.bookhub.repository.*;
 import com.hexagon.bookhub.service.BookService;
 import com.hexagon.bookhub.util.AutheticationUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +30,8 @@ public class BookServiceImpl implements BookService {
     private PhysicalBookRepository physicalBookRepository;
     @Autowired
     private DigitalBookRepository digitalBookRepository;
+    @Autowired
+    private AudioBookRepository audioBookRepository;
     @Autowired
     private AutheticationUtil autheticationUtil;
 
@@ -403,7 +402,64 @@ public class BookServiceImpl implements BookService {
 
             physicalBookResponse.setBorrowerList(borrowesList);
 
-
         return physicalBookResponse;
+    }
+    public ResponseEntity<?> getAllAudioBooks(){
+        log.info("Inside the getAllAudioBooks in Book Service");
+        try{
+            List<AudioBook> bookList =  audioBookRepository.findAll();
+            if(bookList.size() > 0){
+                List<AudioBook> filteredBookList = bookList.stream()
+                        .filter(book -> book.isDeleted() == false)
+                        .collect(Collectors.toList());
+                log.info("Filtered the non deleted books");
+                return new ResponseEntity<List<AudioBook>>(filteredBookList, HttpStatus.OK);
+            }else {
+                return new ResponseEntity<>(null,HttpStatus.NO_CONTENT);
+            }
+        }catch (Exception e){
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    public ResponseEntity<?> saveAudioBook(HttpServletRequest request, AudioBook audioBook){
+        try {
+            log.info("Inside the saveDigitalBook in Book Service");
+            String userEmail = autheticationUtil.getAuthenticatedEmail(request);
+            if(!userEmail.isEmpty()){
+                log.info("User Email Exist " + userEmail);
+                Optional<Admin> user = adminRepository.findByEmail(userEmail);
+                log.info("User : " + user.get().getId());
+                if (user.isPresent()) {
+                    AudioBook _book = audioBookRepository.save(audioBook);
+                    log.info("Book saved " + _book.getId());
+                    Admin _updatedUser = user.get();
+                    log.info("Get User for updating the audio book list");
+                    List<AudioBook> _bookList = new ArrayList<AudioBook>();
+                    log.info("Get User for audio book list size :" + _updatedUser.getAudioBookList().size());
+                    if(_updatedUser.getAudioBookList().size() > 0){
+                        log.info("Having a audio book list");
+                        _bookList = _updatedUser.getAudioBookList();
+                        _bookList.add(_book);
+                    }else{
+                        log.info("Empty audio book list");
+                        _bookList.add(_book);
+                    }
+
+                    _updatedUser.setAudioBookList(_bookList);
+                    log.info("Added the new book to the User Donated Book List");
+                    adminRepository.save(_updatedUser);
+                    log.info("Updated the user with new Donated Book List");
+                    return new ResponseEntity<AudioBook>(_book, HttpStatus.OK);
+                } else {
+                    log.info("No User for the given mail");
+                    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                }
+            }else{
+                log.info("User not found");
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

@@ -2,7 +2,6 @@ package com.hexagon.bookhub.controller;
 
 import com.hexagon.bookhub.entity.*;
 import com.hexagon.bookhub.payload.request.DonateBookRequest;
-import com.hexagon.bookhub.payload.request.PaperRequest;
 import com.hexagon.bookhub.service.BookService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,5 +83,16 @@ public class BookController {
     public ResponseEntity<?> editDigitalBook(@PathVariable String id, @RequestBody DigitalBook digitalBook){
         log.info("Inside the editDigitalBook in Book Controller");
         return bookService.editDigitalBook(id,digitalBook);
+    }
+    @PostMapping("/audiobook")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> saveAudioBook(HttpServletRequest request, @RequestBody AudioBook audioBook){
+        log.info("Inside the saveAudioBook in Book Controller");
+        return bookService.saveAudioBook(request,audioBook);
+    }
+    @GetMapping("/audiobook/all")
+    public ResponseEntity<?> getAllAudioBooks(){
+        log.info("Inside the getAllAudioBooks in Book Controller");
+        return bookService.getAllAudioBooks();
     }
 }

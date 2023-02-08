@@ -87,7 +87,7 @@ public class AuthController {
         // Create new user's account
         GuestUser user = new GuestUser(
                 guestUserSignupRequest.getEmail(),
-                encoder.encode(guestUserSignupRequest.getPassword()), guestUserSignupRequest.getFullName(), guestUserSignupRequest.getContactNumber(), guestUserSignupRequest.getAddress(), guestUserSignupRequest.isStudent(), guestUserSignupRequest.getCompanyOrUniversity(), guestUserSignupRequest.isPrivacyEnable());
+                encoder.encode(guestUserSignupRequest.getPassword()), guestUserSignupRequest.getFullName(), guestUserSignupRequest.getContactNumber(), guestUserSignupRequest.getAddress(), guestUserSignupRequest.isStudent(), guestUserSignupRequest.getCompanyOrUniversity(), guestUserSignupRequest.isPrivacyEnable(),guestUserSignupRequest.getProfileImageLink());
 
         Set<String> strRoles = guestUserSignupRequest.getRoles();
         Set<Role> roles = new HashSet<>();

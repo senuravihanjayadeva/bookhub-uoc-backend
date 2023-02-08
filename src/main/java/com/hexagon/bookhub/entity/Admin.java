@@ -24,6 +24,9 @@ public class Admin extends User{
     @DBRef
     @Field
     private List<DigitalBook> digitalBookList = new ArrayList<>();
+    @DBRef
+    @Field
+    private List<AudioBook> audioBookList = new ArrayList<>();
     public Admin(String email, String password) {
         super(email, password);
     }
