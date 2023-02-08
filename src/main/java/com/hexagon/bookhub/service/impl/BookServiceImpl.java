@@ -231,6 +231,7 @@ public class BookServiceImpl implements BookService {
                             }else{
                                 log.info("Empty requesters list");
                                 _requestersList.add(bookRequestUser);
+                                log.info("Added to Empty requesters list " + bookRequestUser.getGuestUser().getEmail());
                             }
                             updateBookRepo.setRequestersList(_requestersList);
                             log.info("set requesters list" + updateBookRepo.getRequestersList());
