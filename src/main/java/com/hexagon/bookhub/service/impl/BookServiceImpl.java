@@ -197,6 +197,21 @@ public class BookServiceImpl implements BookService {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    public ResponseEntity<?> deleteDigitalBook(String id){
+        log.info("Inside the editDigitalBook in Book Service");
+        try {
+            Optional<DigitalBook> _book = digitalBookRepository.findById(id);
+            if (_book.isPresent()) {
+                DigitalBook updateBookRepo = _book.get();
+                updateBookRepo.setDeleted(true);
+                return new ResponseEntity<>(digitalBookRepository.save(updateBookRepo), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Book Delete Error", HttpStatus.NOT_FOUND);
+            }
+        }catch (Exception e){
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
     public ResponseEntity<?> borrowBook(HttpServletRequest request, String id){
         log.info("Inside the editPhysicalBook in Book Service");
         try {

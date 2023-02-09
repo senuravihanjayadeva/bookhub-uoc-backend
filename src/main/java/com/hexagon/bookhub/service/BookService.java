@@ -19,6 +19,7 @@ public interface BookService {
     public ResponseEntity<?> saveDigitalBook(HttpServletRequest request, DigitalBook digitalBook);
     public ResponseEntity<?> getAllDigitalBooks();
     public ResponseEntity<?> editDigitalBook(String id, DigitalBook digitalBook);
+    public ResponseEntity<?> deleteDigitalBook(String id);
     public List<PhysicalBookResponse> covertToPhysicalBookListResponse(List<PhysicalBook> filteredBookList);
     public PhysicalBookResponse covertToPhysicalBookResponse(PhysicalBook physicalBook);
     public ResponseEntity<?> getAllAudioBooks();

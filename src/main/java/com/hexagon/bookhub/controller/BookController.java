@@ -84,6 +84,12 @@ public class BookController {
         log.info("Inside the editDigitalBook in Book Controller");
         return bookService.editDigitalBook(id,digitalBook);
     }
+    @PostMapping("/digitalbook/delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> deleteDigitalBook(@PathVariable String id){
+        log.info("Inside the deleteDigitalBook in Book Controller");
+        return bookService.deleteDigitalBook(id);
+    }
     @PostMapping("/audiobook")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> saveAudioBook(HttpServletRequest request, @RequestBody AudioBook audioBook){
