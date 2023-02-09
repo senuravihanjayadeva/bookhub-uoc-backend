@@ -1,5 +1,6 @@
 package com.hexagon.bookhub.entity;
 
+import com.hexagon.bookhub.payload.response.UserResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,8 +15,7 @@ import java.util.Date;
 public class BookRequestUser {
     @Id
     private String id;
-    @DBRef
-    private GuestUser guestUser;
+    private UserResponse guestUser;
     private Date requestedDate;
     private Date approvalDate;
 

@@ -1,0 +1,11 @@
+Run & Test
+Run Spring Boot application with command: mvn spring-boot:run
+
+We also need to add some rows into roles collection before assigning any role to User.
+Run following MongoDB insert statements:
+
+db.roles.insertMany([
+   { name: "ROLE_USER" },
+   { name: "ROLE_MODERATOR" },
+   { name: "ROLE_ADMIN" },
+])

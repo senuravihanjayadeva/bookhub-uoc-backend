@@ -217,7 +217,14 @@ public class BookServiceImpl implements BookService {
 
                             UUID uuid = UUID.randomUUID();
                             bookRequestUser.setId(uuid.toString());
-                            bookRequestUser.setGuestUser(user.get());
+
+                            UserResponse userResponse = new UserResponse(
+                                    user.get().getId(),
+                                    user.get().getEmail(),
+                                    user.get().getFullName()
+                            );
+
+                            bookRequestUser.setGuestUser(userResponse);
                             bookRequestUser.setRequestedDate(new Date());
                             log.info("Created a book request user");
 
