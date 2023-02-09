@@ -18,12 +18,12 @@ public class EmailUtil {
         props.put("mail.smtp.port", "587");
         Session session = Session.getInstance(props, new javax.mail.Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication("senurajayadeva1@gmail.com", "tbnrpswpadtfqfjv");
+                return new PasswordAuthentication("bookhublk99@gmail.com", "lxmlqnttakqwppax");
             }
         });
 
         Message msg = new MimeMessage(session);
-        msg.setFrom(new InternetAddress("senurajayadeva1@gmail.com", false));
+        msg.setFrom(new InternetAddress("bookhublk99@gmail.com", false));
 
         msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email));
         msg.setSubject(subject);
